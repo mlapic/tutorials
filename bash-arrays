@@ -1,0 +1,201 @@
+Bash Arrays
+
+Creating numerically indexed arrays
+Bash variables are untyped and any variable can be used as an indexed array without declaring it.
+
+To explicitly declare an array, use the declare builtin:
+
+declare -a array_name
+Copy
+One way to create an indexed array is by using the following form:
+
+array_name[index_1]=value_1
+array_name[index_2]=value_2
+array_name[index_n]=value_n
+Copy
+Where index_ is a positive integer.
+
+Another way to create a numeric array is to specify the list of the elements within parentheses, separated by empty space:
+array_name=( element_1 element_2 element_N )
+Copy
+When the array is created using the form above, indexing starts at zero i.e the first element will have an index of 0.
+
+Creating associative arrays
+Unlike numerically indexed, the associative arrays must be declared first using the declare builtin and the -A (uppercase) option:
+
+declare -A array_name
+Copy
+To create an associative array use the following form:
+
+declare -A array_name
+
+array_name[index_foo]=value_foo
+array_name[index_bar]=value_bar
+array_name[index_xyz]=value_xyz
+Copy
+Where index_ can be any string.
+You can also create an associative array using the following form:
+
+declare -A array_name
+
+array_name=( 
+  [index_foo]=value_foo 
+  [index_bar]=value_bar 
+  [index_xyz]=value_xyz 
+)
+Copy
+Array Operations
+Bash arrays syntax may look a little strange at first, but it will make more sense once you read this article.
+
+Reference Elements
+To reference a single element you’ll need to know the element index. Any element can be referenced using the following form:
+${array_name[index]}
+Copy
+When working with arrays the curly braces ${} are required to avoid shell’s filename expansion operators.
+
+Without the braces, ${} the syntax for accessing an array element is similar to the syntax of most of the programming languages.
+
+Let’s print the element with index of 1:
+
+## declare the array
+declare -a my_array=( "Hydrogen" "Helium" "Lithium" "Beryllium" )
+
+## print element
+echo ${my_array[1]}
+Copy
+Helium
+Copy
+If the specified index is @ or *, the word expands to all members of the array. To print all elements you would use:
+
+## declare the array
+declare -a my_array=( "Hydrogen" "Helium" "Lithium" "Beryllium" )
+
+## print all elements
+echo "${my_array[@]}"
+Copy
+Hydrogen Helium Lithium Beryllium
+Copy
+The only difference between @ or * is when the form ${my_array[x]} is surrounded with double quotes. In this case * expands to a single word where array elements are separated with space, and @ expands each array element to a separate word. This is especially important when using the form to illiterate through array elements.
+You can also print the keys of the array by adding the ! operator before the array name:
+
+${!array_name[index]}
+Copy
+For example, to print all the keys you would use:
+
+## declare the array
+declare -a my_array=( "Hydrogen" "Helium" "Lithium" "Beryllium" )
+
+## print all elements
+echo "${!my_array[@]}"
+Copy
+0 1 2 3
+Copy
+Array Length
+To get the length of an array, use the following form:
+
+${#array_name[@]}
+Copy
+The syntax is the same as when referencing all elements plus the # character before the array name.
+## declare the array
+declare -a my_array=( "Hydrogen" "Helium" "Lithium" "Beryllium" )
+
+## array Length
+echo ${#my_array[@]}
+Copy
+4
+Copy
+Loop through the array
+The most common way to iterate over each item in an array is by using the for loop.
+declare -a my_array=( "Hydrogen" "Helium" "Lithium" "Beryllium" )
+
+## Array Loop
+for i in "${my_array[@]}"
+do 
+  echo "$i"
+done
+Copy
+The code above will iterate over the array and print each element in a new line:
+
+Hydrogen
+Helium
+Lithium
+Beryllium
+Copy
+Here is an example of how to print all keys and values
+
+declare -a my_array=( "Hydrogen" "Helium" "Lithium" "Beryllium" )
+
+## Array Loop
+for i in "${!my_array[@]}"
+do
+  echo "$i" "${my_array[$i]}"
+done
+Copy
+0 Hydrogen
+1 Helium
+2 Lithium
+3 Beryllium
+Copy
+Another way to loop through an array is to get the length of the array and use the C style loop:
+
+declare -a my_array=( "Hydrogen" "Helium" "Lithium" "Beryllium" )
+
+# Length of the array
+length=${#my_array[@]}
+
+# Array Loop
+for (( i=0; i < ${length}; i++ ))
+do
+  echo $i ${my_array[$i]}
+done
+Copy
+0 Hydrogen
+1 Helium
+2 Lithium
+3 Beryllium
+Copy
+Add a new element
+To add a new element to a bash array and specify its index use the following form:
+
+my_array[index_n]="New Element"
+Copy
+Here is an example:
+
+declare -a my_array=( "Hydrogen" "Helium" "Lithium" "Beryllium" )
+
+## add new element
+my_array[9]="Aluminum"
+
+## print all elements
+echo "${my_array[@]}"
+Copy
+Hydrogen Helium Lithium Beryllium Aluminum
+Copy
+Another way of adding a new element to an array without specifying the index is by using the += operator. You can add one or multiple elements:
+
+declare -a my_array=( "Hydrogen" "Helium" "Lithium" "Beryllium" )
+
+## add new elements
+my_array+=( Cobalt Nickel )
+
+## print all elements
+echo "${my_array[@]}"
+Copy
+Hydrogen Helium Lithium Beryllium Cobalt Nickel
+Copy
+Delete an element
+To delete a single element you’ll need to know the element index. An element can be removed using the unset command:
+
+unset my_array[index]
+Copy
+Let’s see an example:
+
+declare -a my_array=( "Hydrogen" "Helium" "Lithium" "Beryllium" )
+
+## remove element
+unset my_array[2]
+
+## print all elements
+echo "${my_array[@]}"
+Copy
+Hydrogen Helium Beryllium
